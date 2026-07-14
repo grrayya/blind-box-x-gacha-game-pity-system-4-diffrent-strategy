@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blind Box Storefront</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            max-width: 600px;
+            margin: 40px auto;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+        .panel {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .secret-rare {
+            color: #d4af37;
+            font-weight: bold;
+        }
+        .rare {
+            color: #9c27b0;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="panel">
+        <h2>Open a Box</h2>
+        <input type="text" id="username" value="Rayya" placeholder="Username">
+        <button onclick="pullCharm()">Pull Charm</button>
+        <button onclick="refreshStash()">Load Stash</button>
+        
+        <p id="pity-tracker">Pity: 0/30</p>
+        <h3 id="pull-result"></h3>
+    </div>
+
+    <div class="panel">
+        <h2>Your Stash</h2>
+        <ul id="stash-list">
+            <li>No charms yet.</li>
+        </ul>
+    </div>
+
+    <script>
+        const API_BASE = "http://127.0.0.1:8000";
+
+        async function pullCharm() {
+            const user = document.getElementById('username').value;
+            if (!user) return;
+
+            try {
+                const res = await fetch(`${API_BASE}/pull/${user}`, {
+                    method: "POST"
+                });
+                const data = await res.json();
+
+                const resultDisplay = document.getElementById('pull-result');
+                resultDisplay.innerText = `You pulled: [${data.rarity}] ${data.charm}`;
+                
+                // Add some quick visual flair based on rarity
+                resultDisplay.className = '';
+                if (data.rarity === 'Secret Rare') resultDisplay.classList.add('secret-rare');
+                if (data.rarity === 'Rare') resultDisplay.classList.add('rare');
+
+                document.getElementById('pity-tracker').innerText = `Pity: ${data.pity_tracker}/30`;
+
+                // Sync the inventory display
+                refreshStash();
+
+            } catch (err) {
+                console.error("API error. Is FastAPI running?", err);
+                document.getElementById('pull-result').innerText = "Network error. Check console.";
+            }
+        }
+
+        async function refreshStash() {
+            const user = document.getElementById('username').value;
+            if (!user) return;
+
+            try {
+                const res = await fetch(`${API_BASE}/inventory/${user}`);
+                const data = await res.json();
+                
+                document.getElementById('pity-tracker').innerText = `Pity: ${data.pity_tracker}/30`;
+                
+                const list = document.getElementById('stash-list');
+                list.innerHTML = '';
+                
+                const items = Object.entries(data.stash);
+                if (items.length === 0) {
+                    list.innerHTML = '<li>No charms yet.</li>';
+                    return;
+                }
+
+                items.forEach(([charm, count]) => {
+                    const li = document.createElement('li');
+                    li.innerText = `${charm} (x${count})`;
+                    list.appendChild(li);
+                });
+
+            } catch (err) {
+                console.error("Failed to fetch stash:", err);
+            }
+        }
+
+        refreshStash();
+    </script>
+
+</body>
+</html>
