@@ -4,7 +4,7 @@
 2. **`oop.py`** — Better organization. This version lets two different players keep track of their own separate stashes and pity counters at the same time.
 3. **`monte_carlo.py`** — The math test. This script creates 10,000 fake players and opens boxes for them until they win. It tells us the exact average of how lucky/unlucky people actually are.
 4. **`fastapi_app.py`** — The web server. This takes all our rules and turns them into a real backend that a website can talk to.
-5. **`index.html`** — The frontend. A cute, interactive website where you can actually click a button to open boxes and see your stash grow.
+5. **`index.html`** — The frontend. ( in teh future ill make it more cute and pretty nand maube ill hcnage the idea to a penguin and add other stuff idk) , interactive website where you can actually click a button to open boxes and see your stash grow.
 
 ## why i built 
 my friend was talking about how gacha games had her hooked and now she is super into blind boxes but wishes that like in gacha games there was a pity system fro secrets depending on how much you buy 
